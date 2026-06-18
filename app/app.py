@@ -1,35 +1,43 @@
 from flask import Flask, request, jsonify
-import mlflow.pyfunc
-import pandas as pd
+import pickle
+import os
 
 app = Flask(__name__)
 
-MODEL_URI = "mlruns/0/models/m-1a7b1e21508b4aa791e6aa1de6ba80f0/artifacts"
+# Load model from local file (inside Docker image)
+MODEL_PATH = "model/model.pkl"
 
-model = mlflow.pyfunc.load_model(MODEL_URI)
+model = None
 
-@app.route("/")
-def home():
+if os.path.exists(MODEL_PATH):
+    with open(MODEL_PATH, "rb") as f:
+        model = pickle.load(f)
+else:
+    raise Exception("Model file not found at model/model.pkl")
+
+@app.route("/", methods=["GET"])
+def health():
     return jsonify({
         "status": "running",
-        "model_loaded": True
+        "model_loaded": model is not None
     })
 
 @app.route("/predict", methods=["POST"])
 def predict():
-
     data = request.get_json()
 
-    features = pd.DataFrame([data])
+    features = [
+        data["sepal length (cm)"],
+        data["sepal width (cm)"],
+        data["petal length (cm)"],
+        data["petal width (cm)"]
+    ]
 
-    prediction = model.predict(features)
+    prediction = model.predict([features])[0]
 
     return jsonify({
-        "prediction": int(prediction[0])
+        "prediction": int(prediction)
     })
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=8080
-    )
+    app.run(host="0.0.0.0", port=8080)
