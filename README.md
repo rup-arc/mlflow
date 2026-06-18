@@ -13,11 +13,6 @@ mlops-devops-project/
 ├── model/
 │
 ├── data/
-│
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
 ├── create_dataset.py
 ├── register_model.py
 ├── requirements.txt
