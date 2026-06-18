@@ -33,11 +33,3 @@ mlops-devops-project/
 2. Create datasets: `python create_dataset.py`
 3. Register models: `python register_model.py`
 4. Run the application: `python app/app.py`
-
-## CI/CD
-
-This project uses GitHub Actions for continuous integration and deployment.
-
-## Data Versioning
-
-Data versioning is managed with DVC (Data Version Control).
